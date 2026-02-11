@@ -19,9 +19,9 @@ function calculate(){
   }
 }
 
-function generateSquares(){
-
   const board = document.getElementById('board');
+
+function generateSquares(){
 
   for (let i = 0; i < 64; i++){
     const square = document.createElement('div');
@@ -45,3 +45,10 @@ function generateSquares(){
 }
 
 generateSquares();
+
+board.addEventListener('click', (e) => {
+  const square = e.target.closest('.square');
+  if (!square) return;
+  // alert('Square clicked: ', square.dataset.index);
+  square.style.backgroundColor = 'red';
+});
