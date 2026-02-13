@@ -19,26 +19,37 @@ function calculate(){
   }
 }
 
-  const board = document.getElementById('board');
+// --------------------------------------------------------------------
+//  MAIN
 
+const board = document.getElementById('board');
+
+// --------------------
+// GENERATE SQUARES  --
+//---------------------
 function generateSquares(){
 
+  // Board Colors
+  let dark = 'rgb(137, 81, 41)';
+  let light = 'rgb(240, 218, 181)';
+
+  // Loop through every square
   for (let i = 0; i < 64; i++){
+    
+    // Create square as a div
     const square = document.createElement('div');
     square.classList.add('square');
-    // row = Math.floor(i / 8);
-    // square.style.backgroundColor = ( !(row%2 && i%2) || i%2 ) ? 'white' : 'black';
+    
+    // Calculate row / col
+    row = Math.floor(i/8) // 0 - 7
+    col = i % 8           // 0 - 7
 
-    square.style.backgroundColor = 'rgb('+ i/64*255 +', 50, 200)';
-    
-    // Color Even rows
-    if (Math.floor(i/8) % 2){
-      square.style.backgroundColor = i%2  ? 'white' : 'black';
-    
-    // Color odd row
-    } else {
-      square.style.backgroundColor = (i%2)  ? 'black' : 'white';
-    }
+    // Assign row / col
+    square.dataset.row = row;
+    square.dataset.col = col;
+
+    // Assign color accordingly
+    square.style.backgroundColor = (row + col) % 2  ? dark : light;
 
     board.appendChild(square);
   }
@@ -46,6 +57,7 @@ function generateSquares(){
 
 generateSquares();
 
+// Add square interactivity
 board.addEventListener('click', (e) => {
   const square = e.target.closest('.square');
   if (!square) return;
