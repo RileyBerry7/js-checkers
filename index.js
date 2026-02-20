@@ -1,28 +1,6 @@
-// CALCULATOR PROGRAM
-
-const display = document.getElementById('display');
-
-function appendTo(input){
-  display.value += input;
-}
-
-function clearDisplay(){
-  display.value = '';
-}
+// CHECKERS GAME
 
 
-function calculate(){
-  try {
-    display.value = eval(display.value);
-  } catch(error) {
-    display.value = 'Error';
-  }
-}
-
-// --------------------------------------------------------------------
-//  MAIN
-
-const board = document.getElementById('board');
 
 // --------------------
 // GENERATE SQUARES  --
@@ -33,56 +11,94 @@ function generateSquares(){
   let dark = 'rgb(137, 81, 41)';
   let light = 'rgb(240, 218, 181)';
 
-  // Loop through every square
+  // Loop - Create 64 squares
   for (let i = 0; i < 64; i++){
     
-    // Create square as a div
+    // Create square
     const square = document.createElement('div');
     square.classList.add('square');
     
-    // Calculate row / col
+    // Calculate current row and col
     row = Math.floor(i/8) // 0 - 7
     col = i % 8           // 0 - 7
 
-    // Assign row / col
+    // Assign attributes
     square.dataset.row = row;
     square.dataset.col = col;
-
-    // Assign color accordingly
     square.style.backgroundColor = (row + col) % 2  ? dark : light;
+    square.contents = null;
 
     board.appendChild(square);
   }
 }
-
-generateSquares();
-
-// Add square interactivity
-board.addEventListener('click', (e) => {
-  const square = e.target.closest('.square');
-  if (!square) return;
-  // alert('Square clicked: ', square.dataset.index);
-  square.style.backgroundColor = 'red';
-});
-
 
 // --------------------
 // GENERATE PIECES  --
 //---------------------
 function generatePieces() {
 
-  // Create checker piece as a div
+  // Current row / col
+  let row = 2;
+  let col = 6;
+
+  // Calculate square
+  const square = document.querySelector('.square[data-row="' + row + '"][data-col="' + col + '"]');
+  
+  // Create piece
   const piece = document.createElement('div');
+
+  // Assign attributes
   piece.classList.add('piece');
-
-  // Assign row / col
-  piece.dataset.row = 2;
-  piece.dataset.col = 2;
-
-  // Get square
-  const square = document.querySelector('.square[data-row="2"][data-col="2"]');
-  square.appendChild(piece);
+  piece.dataset.row = row;
+  piece.dataset.col = col;
+  piece.square = square;
   piece.style.backgroundColor = 'black';
+
+  // Add piece to square
+  square.appendChild(piece);
+
+  // Update square
+  square.contents = piece;
 }
 
+// -----------
+// GLOBALS  --
+//------------
+
+const board = document.getElementById('board');
+let selectedPiece = null;
+const display = document.getElementById('display');
+
+// --------------------------------------------------------------------
+//  MAIN
+
+generateSquares();
 generatePieces();
+
+function movePiece(piece, destination) {
+  destination.appendChild(piece);
+  destination.contents = piece;
+  piece.dataset.row = destination.dataset.row;
+  piece.dataset.col = destination.dataset.col;
+}
+
+// ------------------------
+// SQUARE INTERACTIVITY  --
+//-------------------------
+board.addEventListener('click', (e) => {
+  const square = e.target.closest('.square');
+  if (!square) return;
+  // square.style.backgroundColor = 'red';
+  if (square.contents != null) {
+    selectedPiece = square.contents;
+    // alert('Selected piece at: ' + square.dataset.row + ', ' + square.dataset.col);
+    display.value = 'Selected: ' + selectedPiece.dataset.row + ', ' + selectedPiece.dataset.col;
+
+  } else if ( selectedPiece != null) {
+    movePiece(selectedPiece, square);
+    selectedPiece = null;
+    display.value = '';
+  }
+
+});
+
