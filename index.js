@@ -64,3 +64,25 @@ board.addEventListener('click', (e) => {
   // alert('Square clicked: ', square.dataset.index);
   square.style.backgroundColor = 'red';
 });
+
+
+// --------------------
+// GENERATE PIECES  --
+//---------------------
+function generatePieces() {
+
+  // Create checker piece as a div
+  const piece = document.createElement('div');
+  piece.classList.add('piece');
+
+  // Assign row / col
+  piece.dataset.row = 2;
+  piece.dataset.col = 2;
+
+  // Get square
+  const square = document.querySelector('.square[data-row="2"][data-col="2"]');
+  square.appendChild(piece);
+  piece.style.backgroundColor = 'black';
+}
+
+generatePieces();
