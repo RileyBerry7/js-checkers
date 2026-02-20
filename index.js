@@ -26,6 +26,7 @@ function generateSquares(){
     square.dataset.row = row;
     square.dataset.col = col;
     square.style.backgroundColor = (row + col) % 2  ? dark : light;
+    square.color = (row + col) % 2  ? 'dark' : 'light';
     square.contents = null;
 
     board.appendChild(square);
@@ -37,17 +38,15 @@ function generateSquares(){
 //---------------------
 function generatePieces() {
 
-let initialBoard = [[0, 'white'], [1, 'white'], [6, 'black'], [7, 'black']];
+let initialBoard = [[0, 'white'], [1, 'white'], [2, 'white'],     
+                   [5, 'black'], [6, 'black'], [7, 'black']];
 
-  for (const [index, color] of initialBoard) {
-    for (let i2 = 0; i2 < 8; i2++) {
-
-      // Current row / col
-      let row = index;
-      let col = i2;
+  for (const [row, color] of initialBoard) {
+    for (let col = 0; col < 8; col++) {
 
       // Calculate square
       const square = document.querySelector('.square[data-row="' + row + '"][data-col="' + col + '"]');
+      if (square.color == 'light') continue; // Skip light squares
       
       // Create piece
       const piece = document.createElement('div');
@@ -77,7 +76,19 @@ function movePiece(piece, destination) {
   destination.appendChild(piece);
   destination.contents = piece;
   piece.dataset.row = destination.dataset.row;
+  piece.dataset.col = destination.dataset.col;
 
+}
+
+function checkLegalMove(piece, destination) {
+  // Assuming all the pieces are men(unpromoted)
+  let rowDiff = Number(destination.dataset.row) - Number(piece.dataset.row);
+  let colDiff = Number(destination.dataset.col) - Number(piece.dataset.col);
+  if (Math.abs(colDiff) == 1 && Math.abs(rowDiff) == 1) {
+    return true;
+  } else {
+    return false;
+  } 
 }
 
 // -----------
@@ -101,15 +112,24 @@ generatePieces();
 //-------------------------
 board.addEventListener('click', (e) => {
   const square = e.target.closest('.square');
+  
+  // ERROR CHECKING
   if (!square) return;
-  // square.style.backgroundColor = 'red';
+  
+  // If square occupied
   if (square.contents != null) {
     selectedPiece = square.contents;
-    // alert('Selected piece at: ' + square.dataset.row + ', ' + square.dataset.col);
     display.value = 'Selected: ' + selectedPiece.dataset.row + ', ' + selectedPiece.dataset.col;
 
+  // If square empty & something selected
   } else if ( selectedPiece != null) {
-    movePiece(selectedPiece, square);
+      // Check Legality
+      if (checkLegalMove(selectedPiece, square)) {
+        movePiece(selectedPiece, square);
+      } else {
+        alert('Illegal Move!');
+      }
+    // Clear selection
     selectedPiece = null;
     display.value = '';
   }
