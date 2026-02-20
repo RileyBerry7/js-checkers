@@ -77,15 +77,32 @@ function movePiece(piece, destination) {
   destination.contents = piece;
   piece.dataset.row = destination.dataset.row;
   piece.dataset.col = destination.dataset.col;
-
 }
 
+// ------------------
+// CHECK LEGALITY  --
+//-------------------
 function checkLegalMove(piece, destination) {
   // Assuming all the pieces are men(unpromoted)
   let rowDiff = Number(destination.dataset.row) - Number(piece.dataset.row);
   let colDiff = Number(destination.dataset.col) - Number(piece.dataset.col);
+  
+  // Standard Move
   if (Math.abs(colDiff) == 1 && Math.abs(rowDiff) == 1) {
     return true;
+  
+    // Jump/Capture Move
+  } else if (Math.abs(colDiff) == 2 && Math.abs(rowDiff) == 2) {
+    row = Number(piece.dataset.row) + rowDiff/2;
+    col = Number(piece.dataset.col) + colDiff/2;
+
+    const square = document.querySelector('.square[data-row="' + row + '"][data-col="' + col + '"]');
+    if (square.contents == null){
+      return false;
+    };
+    square.contents.style.backgroundColor = 'red';
+    return true;        
+
   } else {
     return false;
   } 
