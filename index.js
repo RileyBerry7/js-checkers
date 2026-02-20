@@ -100,7 +100,14 @@ function checkLegalMove(piece, destination) {
     if (square.contents == null){
       return false;
     };
-    square.contents.style.backgroundColor = 'red';
+    // square.contents.style.backgroundColor = 'green';
+    const deadSquare = document.createElement('div');
+    deadSquare.classList.add('square');
+    deadSquare.style.border = 'none';
+    movePiece(square.contents, deadSquare);
+
+    const captured  = document.getElementById('captured-own');
+    captured.appendChild(deadSquare);
     return true;        
 
   } else {

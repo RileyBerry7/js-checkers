@@ -8,22 +8,47 @@
     background-color: hsl(0, 0%, 95%);
 }
 
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  height: 400px;      /* full page height */
+  width: 100vw;
+}
+
+
 #calculator{
     font-family: Arial, sans-serif;
     background-color: hsl(0, 0%, 15%);
     border-radius: 15px;
     max-width: 500px;
     overflow: hidden;
+    border: 20px solid white;
 }
 
 #board {
+  grid-row: 1 / span 2;  /* occupy both rows */
   display: grid;
   grid-template-columns: repeat(8, 1fr); /* 8 columns */
   grid-template-rows: repeat(8, 1fr);    /* 8 rows */
   width: 400px;
   height: 400px;
   border: 2px solid #333;
+  justify-self: end;;
 }
+
+.captured {
+    display: grid;
+  grid-template-columns: repeat(8, 40px); /* 8 columns, flexible */
+  grid-template-rows: repeat(4, 40px);    /* 8 rows, flexible */
+  width: 100%;     /* fills parent container */
+  height: 100%;    /* fills parent container */
+  max-width: 400px; /* optional max size */
+  border: 2px solid #333;
+  background-color: rgb(189, 150, 111);
+  box-sizing: border-box;
+  gap: 0;          /* optional, removes spacing between cells */
+}  
 
 .square {
   width: 100%;
