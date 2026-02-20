@@ -37,28 +37,47 @@ function generateSquares(){
 //---------------------
 function generatePieces() {
 
-  // Current row / col
-  let row = 2;
-  let col = 6;
+let initialBoard = [[0, 'white'], [1, 'white'], [6, 'black'], [7, 'black']];
 
-  // Calculate square
-  const square = document.querySelector('.square[data-row="' + row + '"][data-col="' + col + '"]');
-  
-  // Create piece
-  const piece = document.createElement('div');
+  for (const [index, color] of initialBoard) {
+    for (let i2 = 0; i2 < 8; i2++) {
 
-  // Assign attributes
-  piece.classList.add('piece');
-  piece.dataset.row = row;
-  piece.dataset.col = col;
-  piece.square = square;
-  piece.style.backgroundColor = 'black';
+      // Current row / col
+      let row = index;
+      let col = i2;
 
-  // Add piece to square
-  square.appendChild(piece);
+      // Calculate square
+      const square = document.querySelector('.square[data-row="' + row + '"][data-col="' + col + '"]');
+      
+      // Create piece
+      const piece = document.createElement('div');
 
-  // Update square
-  square.contents = piece;
+      // Assign attributes
+      piece.classList.add('piece');
+      piece.dataset.row = row;
+      piece.dataset.col = col;
+      piece.square = square;
+      piece.style.backgroundColor = color;
+
+      // Add piece to square
+      square.appendChild(piece);
+
+      // Update square
+      square.contents = piece;
+    }
+  }
+} 
+
+// --------------
+// MOVE PIECE  --
+//---------------
+function movePiece(piece, destination) {
+  piece.square.contents = null;
+  piece.square = destination;
+  destination.appendChild(piece);
+  destination.contents = piece;
+  piece.dataset.row = destination.dataset.row;
+
 }
 
 // -----------
@@ -75,12 +94,7 @@ const display = document.getElementById('display');
 generateSquares();
 generatePieces();
 
-function movePiece(piece, destination) {
-  destination.appendChild(piece);
-  destination.contents = piece;
-  piece.dataset.row = destination.dataset.row;
-  piece.dataset.col = destination.dataset.col;
-}
+
 
 // ------------------------
 // SQUARE INTERACTIVITY  --
