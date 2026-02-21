@@ -59,6 +59,7 @@ let initialBoard = [[0, opColor], [1, opColor], [2, opColor],
       piece.style.backgroundColor = color;
 
       piece.isMine = (color == myColor) ? true : false;
+      piece.isKing = false;
 
       // Add piece to square
       square.appendChild(piece);
@@ -73,12 +74,25 @@ let initialBoard = [[0, opColor], [1, opColor], [2, opColor],
 // MOVE PIECE  --
 //---------------
 function movePiece(piece, destination) {
+
   piece.square.contents = null;
   piece.square = destination;
   destination.appendChild(piece);
   destination.contents = piece;
   piece.dataset.row = destination.dataset.row;
   piece.dataset.col = destination.dataset.col;
+
+  // Check for Promotion
+  if (!piece.isKing && piece.dataset.row == 0 || piece.dataset.row == 7) {
+    piece.isKing = true;
+    const crown = document.createElement('div');
+    crown.classList.add('piece');
+    crown.style.backgroundColor = 'rgb(255, 215, 0)'; // Gold
+    crown.style.width = '50%';
+    crown.style.height = '50%';
+    piece.appendChild(crown);
+    
+  }
 }
 
 // ------------------
@@ -163,15 +177,20 @@ board.addEventListener('click', (e) => {
 
   // If square empty & something selected
   } else if ( selectedPiece != null) {
-      // Check Legality
+      
+    // Check for legal move
       if (checkLegalMove(selectedPiece, square)) {
+        // Execute move
         movePiece(selectedPiece, square);
+        display.value = '';
+
+      // Illegal Move
       } else {
-        alert('Illegal Move!');
+        display.value = 'Illegal Move!';
       }
+
     // Clear selection
     selectedPiece = null;
-    display.value = '';
   }
 
 });

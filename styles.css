@@ -64,6 +64,8 @@
     display: flex;
     border: 1px solid black;
     border-radius: 50px;
+    place-items: center;
+    justify-content: center;;
 }
 
 
