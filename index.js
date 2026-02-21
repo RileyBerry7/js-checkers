@@ -38,8 +38,8 @@ function generateSquares(){
 //---------------------
 function generatePieces() {
 
-let initialBoard = [[0, 'white'], [1, 'white'], [2, 'white'],     
-                   [5, 'black'], [6, 'black'], [7, 'black']];
+let initialBoard = [[0, opColor], [1, opColor], [2, opColor],
+                   [5, myColor], [6, myColor], [7, myColor]];
 
   for (const [row, color] of initialBoard) {
     for (let col = 0; col < 8; col++) {
@@ -57,6 +57,8 @@ let initialBoard = [[0, 'white'], [1, 'white'], [2, 'white'],
       piece.dataset.col = col;
       piece.square = square;
       piece.style.backgroundColor = color;
+
+      piece.isMine = (color == myColor) ? true : false;
 
       // Add piece to square
       square.appendChild(piece);
@@ -83,17 +85,22 @@ function movePiece(piece, destination) {
 // CHECK LEGALITY  --
 //-------------------
 function checkLegalMove(piece, destination) {
-  // Assuming all the pieces are men(unpromoted)
+  // Assuming all the pieces are unpromoted
   let rowDiff = Number(destination.dataset.row) - Number(piece.dataset.row);
   let colDiff = Number(destination.dataset.col) - Number(piece.dataset.col);
   
+  // Row diff will always be positive
+  if (piece.style.backgroundColor == myColor) rowDiff *= -1;
+
   // Standard Move
-  if (Math.abs(colDiff) == 1 && Math.abs(rowDiff) == 1) {
+  if (Math.abs(colDiff) == 1 && rowDiff == 1) {
     return true;
   
     // Jump/Capture Move
-  } else if (Math.abs(colDiff) == 2 && Math.abs(rowDiff) == 2) {
-    row = Number(piece.dataset.row) + rowDiff/2;
+  } else if (Math.abs(colDiff) == 2 && rowDiff == 2) {
+    
+    row = Number(piece.dataset.row);
+    row += (piece.isMine) ? -rowDiff/2 : (rowDiff)/2;
     col = Number(piece.dataset.col) + colDiff/2;
 
     const square = document.querySelector('.square[data-row="' + row + '"][data-col="' + col + '"]');
@@ -106,8 +113,9 @@ function checkLegalMove(piece, destination) {
     deadSquare.style.border = 'none';
     movePiece(square.contents, deadSquare);
 
-    const captured  = document.getElementById('captured-own');
-    captured.appendChild(deadSquare);
+    side = (piece.isMine) ? 'own': 'opponent';
+    const sideBoard  = document.getElementById('captured-'+side);
+    sideBoard.appendChild(deadSquare);
     return true;        
 
   } else {
@@ -120,8 +128,12 @@ function checkLegalMove(piece, destination) {
 //------------
 
 const board = document.getElementById('board');
-let selectedPiece = null;
 const display = document.getElementById('display');
+
+const myColor = 'white';
+const opColor = 'black';
+
+let selectedPiece = null;
 
 // --------------------------------------------------------------------
 //  MAIN
