@@ -103,15 +103,19 @@ function checkLegalMove(piece, destination) {
     row += (piece.isMine) ? -rowDiff/2 : (rowDiff)/2;
     col = Number(piece.dataset.col) + colDiff/2;
 
-    const square = document.querySelector('.square[data-row="' + row + '"][data-col="' + col + '"]');
-    if (square.contents == null){
+    const jumpedSquare = document.querySelector('.square[data-row="' + row + '"][data-col="' + col + '"]');
+    if (jumpedSquare.contents == null){
       return false;
-    };
-    // square.contents.style.backgroundColor = 'green';
+    }
+
+    if (jumpedSquare.contents.isMine == piece.isMine) {
+      return false;
+    }
+    
     const deadSquare = document.createElement('div');
     deadSquare.classList.add('square');
     deadSquare.style.border = 'none';
-    movePiece(square.contents, deadSquare);
+    movePiece(jumpedSquare.contents, deadSquare);
 
     side = (piece.isMine) ? 'own': 'opponent';
     const sideBoard  = document.getElementById('captured-'+side);
