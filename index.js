@@ -96,14 +96,37 @@ function movePiece(piece, destination) {
 }
 
 // ----------------------------------------------------------------------------
+// PIECE.KILL --
+// -------------
+function kill(victim, murderer) {
+    const deadSquare = document.createElement('div');
+    deadSquare.classList.add('square');
+    deadSquare.style.border = 'none';
+    movePiece(victim, deadSquare);
+
+    side = (murderer.isMine) ? 'own': 'opponent';
+    const sideBoard  = document.getElementById('captured-'+side);
+    sideBoard.appendChild(deadSquare);
+  
+  }
+
+// ----------------------------------------------------------------------------
 // FIND CONTENTS --
 // ---------------s-
 function findContents(location) {
+  if (typeof location === "string") alert('String Parameter');
+  // Search Document
   const square = document.querySelector(
   `.square[data-row="${location[1]}"][data-col="${location[0]}"]` );
   if (square){
+    if (square.contents) { 
+      // square.style.backgroundColor = 'red';
+    } else {
+      // square.style.backgroundColor = 'blue';
+    }
     return square.contents;
   } else {
+    // alert('Square doesnt exist')
     return null;
   }
 }
@@ -205,9 +228,9 @@ function attemptMove(piece, destination) {
     if (!moveSet.has(target)) return false;
     
     // Piece being captured
-    // victim = moveSet.get(target);
-    // piece.kill(victim);   // removes from board
-    alert('Time to implment the kill function');
+    victim = moveSet.get(target);
+    // victim.style.backgroundColor = 'blue';
+    kill(victim, piece);   // removes from board
     return true;          // move success 
 
   // -- NORMAL MOVE (Single Jump) ---------------------------------------------
@@ -218,47 +241,6 @@ function attemptMove(piece, destination) {
   } else {
     return false;
   }
-
-  // -------- DEAD CODE -------------------
-  let rowDiff = Number(destination.dataset.row) - Number(piece.dataset.row);
-  let colDiff = Number(destination.dataset.col) - Number(piece.dataset.col);
-  
-  // Row diff will always be positive
-  if (piece.style.backgroundColor == myColor) rowDiff *= -1;
-
-  // Move 1 Forwards
-  if (Math.abs(colDiff) == 1 && rowDiff == 1) {
-    return true;
-  
-  // Move 2 Forwards (Jump)
-  } else if (Math.abs(colDiff) == 2 && rowDiff == 2) {
-    
-    row = Number(piece.dataset.row);
-    row += (piece.isMine) ? -rowDiff/2 : (rowDiff)/2;
-    col = Number(piece.dataset.col) + colDiff/2;
-
-    const jumpedSquare = document.querySelector('.square[data-row="' + row + '"][data-col="' + col + '"]');
-    if (jumpedSquare.contents == null){
-      return false;
-    }
-
-    if (jumpedSquare.contents.isMine == piece.isMine) {
-      return false;
-    }
-    
-    const deadSquare = document.createElement('div');
-    deadSquare.classList.add('square');
-    deadSquare.style.border = 'none';
-    movePiece(jumpedSquare.contents, deadSquare);
-
-    side = (piece.isMine) ? 'own': 'opponent';
-    const sideBoard  = document.getElementById('captured-'+side);
-    sideBoard.appendChild(deadSquare);
-    return true;        
-
-  } else {
-    return false;
-  } 
 }
 
 // -----------
