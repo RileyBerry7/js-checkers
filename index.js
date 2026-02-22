@@ -164,7 +164,9 @@ function calculateLegalMoves(piece) {
     if (hurdle && hurdle.isMine != piece.isMine){
       // Check for double jump
       dest = [currCol - 2, currRow - 2];
-      if (inBounds(dest)) captures.set(dest.join(','), hurdle);
+      if (inBounds(dest) && !findContents(dest)) {
+         captures.set(dest.join(','), hurdle);
+      }
     }
 
     // Right Diagonal
@@ -175,7 +177,9 @@ function calculateLegalMoves(piece) {
     if (hurdle && hurdle.isMine != piece.isMine){
       // Check for double jump
       dest = [currCol + 2, currRow - 2];
-      if (inBounds(dest)) captures.set(dest.join(','), hurdle);
+      if (inBounds(dest) && !findContents(dest)) {
+         captures.set(dest.join(','), hurdle);
+      }
     }
   }
 
@@ -190,7 +194,9 @@ function calculateLegalMoves(piece) {
     if (hurdle && hurdle.isMine != piece.isMine){
       // Check for double jump
       dest = [currCol - 2, currRow + 2];
-      if (inBounds(dest)) captures.set(dest.join(','), hurdle);
+      if (inBounds(dest) && !findContents(dest)) {
+         captures.set(dest.join(','), hurdle);
+      }
     }
 
     // Right Diagonal
@@ -201,7 +207,9 @@ function calculateLegalMoves(piece) {
     if (hurdle && hurdle.isMine != piece.isMine){
       // Check for double jump
       dest = [currCol + 2, currRow + 2];
-      if (inBounds(dest)) captures.set(dest.join(','), hurdle);
+      if (inBounds(dest) && !findContents(dest)) {
+         captures.set(dest.join(','), hurdle);
+      }
     }
   }
 
