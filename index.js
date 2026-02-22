@@ -95,22 +95,142 @@ function movePiece(piece, destination) {
   }
 }
 
-// ------------------
-// CHECK LEGALITY  --
-//-------------------
-function checkLegalMove(piece, destination) {
-  // Assuming all the pieces are unpromoted
+// ----------------------------------------------------------------------------
+// FIND CONTENTS --
+// ---------------s-
+function findContents(location) {
+  const square = document.querySelector(
+  `.square[data-row="${location[1]}"][data-col="${location[0]}"]` );
+  if (square){
+    return square.contents;
+  } else {
+    return null;
+  }
+}
+
+// ------------------------------------------------------------------------
+// IN BOUNDS  --
+//--------------
+function inBounds(location) {
+  if (location[0] < 0 || location[0] > 7) return false;
+  if (location[1] < 0 || location[1] > 7) return false;
+  return true;
+}
+
+// ------------------------------------------------------------------------
+// CALCULATE LEGAL MOVES  --  -> returns a set of str: 'col,row'
+//--------------------------
+function calculateLegalMoves(piece) {  
+
+  let moves    = new Set();
+  let captures = new Map();
+
+  let currCol = Number(piece.dataset.col);
+  let currRow = Number(piece.dataset.row);
+
+  // -- SIMPLE MOVES -------------------------------------------------------
+
+  // --- Upwards Direction --- //
+  if (piece.isKing || piece.isMine) {
+    
+    // Left Diagonal
+    dest = [currCol - 1, currRow - 1];
+    if (inBounds(dest)) moves.add(dest.join(','));
+    // Check for enemy
+    hurdle = findContents(dest);  
+    if (hurdle && hurdle.isMine != piece.isMine){
+      // Check for double jump
+      dest = [currCol - 2, currRow - 2];
+      if (inBounds(dest)) captures.set(dest.join(','), hurdle);
+    }
+
+    // Right Diagonal
+    dest = [currCol + 1, currRow - 1];
+    if (inBounds(dest)) moves.add(dest.join(',')); 
+    // Check for enemy
+    hurdle = findContents(dest);
+    if (hurdle && hurdle.isMine != piece.isMine){
+      // Check for double jump
+      dest = [currCol + 2, currRow - 2];
+      if (inBounds(dest)) captures.set(dest.join(','), hurdle);
+    }
+  }
+
+  // --- Downwards Direction --- //
+  if (piece.isKing || !piece.isMine) {
+
+    // Left Diagonal
+    dest = [currCol - 1, currRow + 1];
+    if (inBounds(dest)) moves.add(dest.join(',')); 
+    // Check for enemy
+    hurdle = findContents(dest);
+    if (hurdle && hurdle.isMine != piece.isMine){
+      // Check for double jump
+      dest = [currCol - 2, currRow + 2];
+      if (inBounds(dest)) captures.set(dest.join(','), hurdle);
+    }
+
+    // Right Diagonal
+    dest = [currCol + 1, currRow + 1];
+    if (inBounds(dest)) moves.add(dest.join(',')); 
+    // Check for enemy
+    hurdle = findContents(dest);
+    if (hurdle && hurdle.isMine != piece.isMine){
+      // Check for double jump
+      dest = [currCol + 2, currRow + 2];
+      if (inBounds(dest)) captures.set(dest.join(','), hurdle);
+    }
+  }
+
+// RETURN - MoveSet, or CaptureSet if non-empty
+return (captures.size == 0) ? moves : captures;
+}
+
+// --------------------------------------------------------------------------
+// ATTEMPT MOVE  --
+//-----------------
+function attemptMove(piece, destination) {
+
+  // Calculate Set of Legal Moves
+  const moveSet = calculateLegalMoves(piece); // Set | Map : ('col,row')
+  
+  // Target location -> str: 'col,row'
+  target = destination.dataset.col + ',' + destination.dataset.row;
+
+  // -- CAPTURE MOVE (Double Jump) --------------------------------------------
+  if (moveSet instanceof Map){
+
+    // Target must be in capture set
+    // --> If capture is possible, any non-capture move is illegal.
+    if (!moveSet.has(target)) return false;
+    
+    // Piece being captured
+    // victim = moveSet.get(target);
+    // piece.kill(victim);   // removes from board
+    alert('Time to implment the kill function');
+    return true;          // move success 
+
+  // -- NORMAL MOVE (Single Jump) ---------------------------------------------
+  } else if (moveSet.has(target)) {
+    return true;
+  
+  // -- ILLEGAL MOVE ----------------------------------------------------------
+  } else {
+    return false;
+  }
+
+  // -------- DEAD CODE -------------------
   let rowDiff = Number(destination.dataset.row) - Number(piece.dataset.row);
   let colDiff = Number(destination.dataset.col) - Number(piece.dataset.col);
   
   // Row diff will always be positive
   if (piece.style.backgroundColor == myColor) rowDiff *= -1;
 
-  // Standard Move
+  // Move 1 Forwards
   if (Math.abs(colDiff) == 1 && rowDiff == 1) {
     return true;
   
-    // Jump/Capture Move
+  // Move 2 Forwards (Jump)
   } else if (Math.abs(colDiff) == 2 && rowDiff == 2) {
     
     row = Number(piece.dataset.row);
@@ -179,7 +299,7 @@ board.addEventListener('click', (e) => {
   } else if ( selectedPiece != null) {
       
     // Check for legal move
-      if (checkLegalMove(selectedPiece, square)) {
+      if (attemptMove(selectedPiece, square)) {
         // Execute move
         movePiece(selectedPiece, square);
         display.value = '';
