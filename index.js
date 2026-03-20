@@ -1,6 +1,6 @@
-// CHECKERS GAME
+// CHECKERS GAMEfunction // ffunction // function // unction // 
 
-
+// SETUP BOARD
 
 // --------------------
 // GENERATE SQUARES  --
@@ -38,6 +38,8 @@ function generateSquares(){
 //---------------------
 function generatePieces() {
 
+  const board = document.getElementById("board");
+
 let initialBoard = [[0, opColor], [1, opColor], [2, opColor],
                    [5, myColor], [6, myColor], [7, myColor]];
 
@@ -63,9 +65,12 @@ let initialBoard = [[0, opColor], [1, opColor], [2, opColor],
 
       // Add piece to square
       square.appendChild(piece);
-
+      
       // Update square
       square.contents = piece;
+
+      // Add piece to alive
+      board.alive.add(piece);
     }
   }
 } 
@@ -90,8 +95,7 @@ function movePiece(piece, destination) {
     crown.style.backgroundColor = 'rgb(255, 215, 0)'; // Gold
     crown.style.width = '50%';
     crown.style.height = '50%';
-    piece.appendChild(crown);
-    
+    piece.appendChild(crown); 
   }
 }
 
@@ -255,21 +259,45 @@ function attemptMove(piece, destination) {
 // GLOBALS  --
 //------------
 
+// DOM Objects
 const board = document.getElementById('board');
 const display = document.getElementById('display');
+const turn_indicator = document.getElementById('turn_indicator');
 
+// Config
 const myColor = 'white';
 const opColor = 'black';
 
+// Game State
 let selectedPiece = null;
+
 
 // --------------------------------------------------------------------
 //  MAIN
 
+board.alive = new Set();
+
 generateSquares();
 generatePieces();
 
+function makeRandomMove() {
+  const board = document.getElementById('board');
+  const randomPiece = [...board.alive][Math.floor(Math.random() * board.alive.size)];
+  randomPiece.style.backgroundColor = 'blue';
+}
+makeRandomMove();
 
+function changeTurn() {
+  const turn_indicator = document.getElementById('turn_indicator');
+  const board = document.getElementById('board');
+  board.isMyTurn = !board.isMyTurn;
+  if (board.isMyTurn)turn_indicator.value = "Your turn.";
+  else turn_indicator.value = "Opponent's turn.";
+}
+board.isMyTurn = true;
+if (board.isMyTurn)turn_indicator.value = "Your turn.";
+else turn_indicator.value = "Opponent's turn.";
+changeTurn();
 
 // ------------------------
 // SQUARE INTERACTIVITY  --
@@ -283,7 +311,7 @@ board.addEventListener('click', (e) => {
   // If square occupied
   if (square.contents != null) {
     selectedPiece = square.contents;
-    display.value = 'Selected: ' + selectedPiece.dataset.row + ', ' + selectedPiece.dataset.col;
+    display.value = 'Selected: ' + slectedPiece.dataset.row + ', ' + selectedPiece.dataset.col;
 
   // If square empty & something selected
   } else if ( selectedPiece != null) {
@@ -293,6 +321,7 @@ board.addEventListener('click', (e) => {
         // Execute move
         movePiece(selectedPiece, square);
         display.value = '';
+        changeTurn();
 
       // Illegal Move
       } else {
