@@ -1,5 +1,7 @@
 // CHECKERS GAMEfunction // ffunction // function // unction // 
 
+
+
 // SETUP BOARD
 
 // --------------------
@@ -69,8 +71,8 @@ let initialBoard = [[0, opColor], [1, opColor], [2, opColor],
       // Update square
       square.contents = piece;
 
-      // Add piece to alive
-      board.alive.add(piece);
+      // Add piece to aliveSet
+      board.aliveSet.add(piece);
     }
   }
 } 
@@ -115,26 +117,36 @@ function kill(victim, murderer) {
   }
 
 // ----------------------------------------------------------------------------
-// FIND CONTENTS --
-// ---------------s-
-function findContents(location) {
+// FIND PIECE    --  location <- string in think
+// ----------------
+function findPiece(location) {
   if (typeof location === "string") alert('String Parameter');
   // Search Document
   const square = document.querySelector(
   `.square[data-row="${location[1]}"][data-col="${location[0]}"]` );
   if (square){
-    if (square.contents) { 
-      // square.style.backgroundColor = 'red';
-    } else {
-      // square.style.backgroundColor = 'blue';
-    }
+
     return square.contents;
   } else {
     // alert('Square doesnt exist')
     return null;
   }
 }
-
+// ----------------------------------------------------------------------------
+// FIND SQUARE   --  location <- string i think
+// ----------------
+function findSquare(location) {
+  if (typeof location === "string") alert('String Parameter');
+  // Search Document
+  const square = document.querySelector(
+  `.square[data-row="${location[1]}"][data-col="${location[0]}"]` );
+  if (square){
+    return square;
+  } else {
+    alert('Square doesnt exist')
+    return null;
+  }
+}
 // ------------------------------------------------------------------------
 // IN BOUNDS  --
 //--------------
@@ -164,11 +176,11 @@ function calculateLegalMoves(piece) {
     dest = [currCol - 1, currRow - 1];
     if (inBounds(dest)) moves.add(dest.join(','));
     // Check for enemy
-    hurdle = findContents(dest);  
+    hurdle = findPiece(dest);  
     if (hurdle && hurdle.isMine != piece.isMine){
       // Check for double jump
       dest = [currCol - 2, currRow - 2];
-      if (inBounds(dest) && !findContents(dest)) {
+      if (inBounds(dest) && !findPiece(dest)) {
          captures.set(dest.join(','), hurdle);
       }
     }
@@ -177,11 +189,11 @@ function calculateLegalMoves(piece) {
     dest = [currCol + 1, currRow - 1];
     if (inBounds(dest)) moves.add(dest.join(',')); 
     // Check for enemy
-    hurdle = findContents(dest);
+    hurdle = findPiece(dest);
     if (hurdle && hurdle.isMine != piece.isMine){
       // Check for double jump
       dest = [currCol + 2, currRow - 2];
-      if (inBounds(dest) && !findContents(dest)) {
+      if (inBounds(dest) && !findPiece(dest)) {
          captures.set(dest.join(','), hurdle);
       }
     }
@@ -194,11 +206,11 @@ function calculateLegalMoves(piece) {
     dest = [currCol - 1, currRow + 1];
     if (inBounds(dest)) moves.add(dest.join(',')); 
     // Check for enemy
-    hurdle = findContents(dest);
+    hurdle = findPiece(dest);
     if (hurdle && hurdle.isMine != piece.isMine){
       // Check for double jump
       dest = [currCol - 2, currRow + 2];
-      if (inBounds(dest) && !findContents(dest)) {
+      if (inBounds(dest) && !findPiece(dest)) {
          captures.set(dest.join(','), hurdle);
       }
     }
@@ -207,11 +219,11 @@ function calculateLegalMoves(piece) {
     dest = [currCol + 1, currRow + 1];
     if (inBounds(dest)) moves.add(dest.join(',')); 
     // Check for enemy
-    hurdle = findContents(dest);
+    hurdle = findPiece(dest);
     if (hurdle && hurdle.isMine != piece.isMine){
       // Check for double jump
       dest = [currCol + 2, currRow + 2];
-      if (inBounds(dest) && !findContents(dest)) {
+      if (inBounds(dest) && !findPiece(dest)) {
          captures.set(dest.join(','), hurdle);
       }
     }
@@ -225,6 +237,9 @@ return (captures.size == 0) ? moves : captures;
 // ATTEMPT MOVE  --
 //-----------------
 function attemptMove(piece, destination) {
+
+  // Instant fail if destination is non-empty
+  if (destination.contents != null) return false;
 
   // Calculate Set of Legal Moves
   const moveSet = calculateLegalMoves(piece); // Set | Map : ('col,row')
@@ -271,28 +286,88 @@ const opColor = 'black';
 // Game State
 let selectedPiece = null;
 
+// -------------------------------------------------------------
+// MAKE RANDOM MOVE  --
+//---------------------
+function makeRandomMove() {
+  const board = document.getElementById('board');
+  let hasMoved = false;
+
+  while (!hasMoved) {
+
+    // 1. Pick a random piece (Ensure .aliveSet is a Set, otherwise use .length)
+    let pieces = [...board.aliveSet]; 
+    let randomPiece = pieces[Math.floor(Math.random() * pieces.length)];
+    // randomPiece.style.backgroundColor = "red";
+
+    // 2. Get moves // <- Set of str 'col,row'
+    let moveSet = calculateLegalMoves(randomPiece);
+
+    if (!randomPiece.isMine && moveSet.size > 0) {
+      // alert("DEBUG 0.");
+
+      // 3. Pick a random move from the set
+      let moves = [...moveSet];
+      let moveStr = moves[Math.floor(Math.random() * moves.length)];
+      let coords  = moveStr.split(',').map(Number);
+      // alert("DEBUG 0.5");
+      let randomDest = findSquare(coords);
+      if (randomDest){
+        // destinationSquare.style.backgroundColor = 'blue';
+      }      
+
+      // alert("DEBUG 1");
+
+      // 4. Attempt move (assuming attemptMove returns true on SUCCESS)
+      if (attemptMove(randomPiece, randomDest)) {
+        // alert("DEBUG 2");
+        // randomPiece.style.backgroundColor = 'blue';
+        hasMoved = true;
+        // alert("Move Succeeded.");
+        
+        // Execute move
+        movePiece(randomPiece, randomDest);
+        display.value = '';
+        changeTurn();
+        
+      } else {
+        // alert("Move Failed.");
+      }
+    }
+    // Continue - Reroll piece/move
+  }
+}
 
 // --------------------------------------------------------------------
 //  MAIN
 
-board.alive = new Set();
+board.aliveSet = new Set();
 
 generateSquares();
 generatePieces();
 
-function makeRandomMove() {
-  const board = document.getElementById('board');
-  const randomPiece = [...board.alive][Math.floor(Math.random() * board.alive.size)];
-  randomPiece.style.backgroundColor = 'blue';
-}
 makeRandomMove();
 
+
+// -------------------------------------------------------------
+// CHANGE TURN  --
+//----------------
 function changeTurn() {
   const turn_indicator = document.getElementById('turn_indicator');
   const board = document.getElementById('board');
   board.isMyTurn = !board.isMyTurn;
-  if (board.isMyTurn)turn_indicator.value = "Your turn.";
-  else turn_indicator.value = "Opponent's turn.";
+  if (board.isMyTurn) turn_indicator.value = "Your turn.";
+  else { 
+    turn_indicator.value = "Opponent's turn.";
+    
+    // Wait half a second
+    (async () => {
+    const sleep = ms => new Promise(res => setTimeout(res, ms));
+    await sleep(500); 
+    })();
+    
+    makeRandomMove();
+  }
 }
 board.isMyTurn = true;
 if (board.isMyTurn)turn_indicator.value = "Your turn.";
