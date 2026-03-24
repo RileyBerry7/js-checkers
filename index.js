@@ -113,7 +113,9 @@ function kill(victim, murderer) {
     side = (murderer.isMine) ? 'own': 'opponent';
     const sideBoard  = document.getElementById('captured-'+side);
     sideBoard.appendChild(deadSquare);
-  
+    
+    const board = document.getElementById('board');
+    board.aliveSet.delete(victim);
   }
 
 // ----------------------------------------------------------------------------
@@ -346,7 +348,8 @@ board.aliveSet = new Set();
 generateSquares();
 generatePieces();
 
-makeRandomMove();
+// makeRandomMove();
+isMyTurn = true;
 
 
 // -------------------------------------------------------------
@@ -355,16 +358,15 @@ makeRandomMove();
 function changeTurn() {
   const turn_indicator = document.getElementById('turn_indicator');
   const board = document.getElementById('board');
+  // Swap Turn Flag
   board.isMyTurn = !board.isMyTurn;
+  // State Update
   if (board.isMyTurn) turn_indicator.value = "Your turn.";
   else { 
     turn_indicator.value = "Opponent's turn.";
     
     // Wait half a second
-    (async () => {
-    const sleep = ms => new Promise(res => setTimeout(res, ms));
-    await sleep(500); 
-    })();
+    
     
     makeRandomMove();
   }
@@ -372,7 +374,7 @@ function changeTurn() {
 board.isMyTurn = true;
 if (board.isMyTurn)turn_indicator.value = "Your turn.";
 else turn_indicator.value = "Opponent's turn.";
-changeTurn();
+// changeTurn();
 
 // ------------------------
 // SQUARE INTERACTIVITY  --
